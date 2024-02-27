@@ -18,6 +18,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -33,7 +34,7 @@ endif()
 ament_package()
 
 add_executable(uart_chassis src/uart_chassis.cpp)
-ament_target_dependencies(uart_chassis rclcpp)
+ament_target_dependencies(uart_chassis rclcpp std_msgs)
 
 install(TARGETS
   uart_chassis
