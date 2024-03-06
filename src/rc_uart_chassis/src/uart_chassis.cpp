@@ -5,7 +5,7 @@
 class UartCommander : public rclcpp::Node
 {
 public:
-    // 构造函数,有一个参数为节点名称
+    /* 构造函数,有一个参数为节点名称 */
     UartCommander(std::string name) : Node(name)
     {
         RCLCPP_INFO(this->get_logger(), "%s节点已经启动.", name.c_str());
@@ -30,6 +30,11 @@ public:
         this->get_parameter_or<int>("hz", hz, "100");
     }
 
+    /**
+     * @brief 完成串口初始化，并打开串口
+     * @param 无
+     * @retval 无
+     */
     void OpenUart ( void )
     {
         /* 开启串口模块 */
@@ -48,6 +53,7 @@ public:
             ROS_ERROR_STREAM("Unable to open port.");
         }
 
+        /* 检查串口是否开启 */
         if(ros_ser.isOpen())
         {
             ros_ser.flushInput(); //清空缓冲区数据
@@ -55,7 +61,7 @@ public:
         }
         else
         {
-
+            //TODO
         }
 
         
@@ -78,6 +84,11 @@ public:
         }
     }
 
+    /**
+     * @brief 辨析串口接收到的数据
+     * @param serialData --- 串口数据
+     * @retval --- 
+     */
     Bool AnalyUartReciveData( std_msgs::String& serialData )
     {
         uint8_t buf[500]; 
@@ -109,15 +120,13 @@ public:
     }
 
 private:
-    // 声明节点
-    // 声明一个订阅者
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr FrameSubscribe_;
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr FrameSubscribe_; // 创建订阅者
+    /* 串口相关变量 */
     serial::Serial ros_ser;
     bool uart_recive_flag;
     std::string dev; // 串口号
     int baud, time_out, hz; // 波特率，延时时间，发布频率
     bool init_OK;
-
     const unsigned char header[2];
     const unsigned char ender[2];
     unsigned char ctrlflag = 0x07;
@@ -128,7 +137,7 @@ private:
         SendCommand(msg.data);
 	}	
 
-    void SendCommand (std::string command)
+    void SendCommand ( std::string command )
     {
         unsigned char buf[8] = {0};
         int length = 2;
@@ -158,10 +167,17 @@ private:
         ros_ser.write(buf, 8);
     }
 
-    unsigned char GetCrc8(unsigned char *ptr, unsigned short len)
+    /**
+     * @brief 计算CRC-8校验码。CRC（循环冗余校验）是一种常用的数据校验方法，用于检测数据在传输或存储过程中是否发生了错误
+     * @param ptr --- 数组首地址
+     * @param len --- 数组目前有效数据长度
+     * @retval crc --- CRC-8校验码
+     */
+    unsigned char GetCrc8( unsigned char *ptr, unsigned short len )
     {
         unsigned char crc;
         unsigned char i;
+        
         crc = 0;
         while(len--)
         {
