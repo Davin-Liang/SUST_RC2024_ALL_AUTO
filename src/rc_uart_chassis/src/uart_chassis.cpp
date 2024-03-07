@@ -10,6 +10,7 @@ public:
     {
         RCLCPP_INFO(this->get_logger(), "%s节点已经启动.", name.c_str());
 	    FrameSubscribe_ = this->create_subscription<std_msgs::msg::String>("OptimalFrame", 10, std::bind(&UartCommander::FrameCallback, this, std::placeholders::_1));
+        // timer = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&UartCommander::timer_callback, this));
         init_OK = false;
 
         /* 初始化数据头和数据尾 */
@@ -121,6 +122,7 @@ public:
 
 private:
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr FrameSubscribe_; // 创建订阅者
+    // rclcpp::TimerBase::SharedPtr timer;
     /* 串口相关变量 */
     serial::Serial ros_ser;
     bool uart_recive_flag;
@@ -200,8 +202,29 @@ int main(int argc, char **argv)
     /*创建对应节点的共享指针对象*/
     auto node = std::make_shared<UartCommander>("UartCommander");
     node.OpenUart();
+
+    while (rclcpp::ok())
+    {  
+		if (ros_ser.available())
+		{
+			std_msgs::String serial_data;
+			serial_data.data = ros_ser.read(ros_ser.available());
+ 
+			uart_recive_flag = node.AnalyUartReciveData(serial_data);
+			
+			if (uart_recive_flag)
+			{
+				uart_recive_flag = 0;
+			}
+			else
+			{
+				RCUTILS_LOG_WARN("analysis data is error ..." ); 
+			}
+		}	 
+		rclcpp::spin(node);	
+    }
     /* 运行节点，并检测退出信号*/
-    rclcpp::spin(node);
+    // rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
 }
