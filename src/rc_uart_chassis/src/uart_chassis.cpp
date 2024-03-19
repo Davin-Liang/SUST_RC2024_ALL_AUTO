@@ -99,7 +99,7 @@ public:
      * @param serialData --- 串口数据
      * @retval --- 
      */
-    bool AnalyUartReciveData( std_msgs::String& serialData )
+    bool AnalyUartReciveData( std_msgs::msg::String& serialData )
     {
         uint8_t buf[500]; 
 	    uint16_t dataLength = 0, i = 0, len;
@@ -111,14 +111,14 @@ public:
         // {
         //     return false;
         // }
-        dataLength = serial_data.data.size();
+        dataLength = serialData.data.size();
         for (i = 0; i < dataLength; i ++)
         {	
             buf[i] = serialData.data.at(i);
         }
 
         dataLength = buf[2];
-        checkSum = getCrc8(buf, 3+dataLength);
+        checkSum = GetCrc8(buf, 3+dataLength);
 
         /* 检查信息校验值 */
         if ( checkSum != buf[3+dataLength] )                 //buf[10] 串口接收
@@ -130,12 +130,16 @@ public:
         RCLCPP_INFO(this->get_logger(), " command: %u\n", command);
     }
 
+    /* 公共变量 */
+    serial::Serial ros_ser;
+    bool uart_recive_flag;
+
 private:
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr FrameSubscribe_; // 创建订阅者
     // rclcpp::TimerBase::SharedPtr timer;
     /* 串口相关变量 */
-    serial::Serial ros_ser;
-    bool uart_recive_flag;
+    
+    
     std::string dev; // 串口号
     int baud, time_out, hz; // 波特率，延时时间，发布频率
     bool init_OK;
@@ -214,7 +218,7 @@ int main(int argc, char **argv)
     node->OpenUart();
 
     std::string action = "开始接收串口数据";
-    std::cout << str << std::endl;
+    std::cout << action << std::endl;
 
     while (rclcpp::ok())
     {  
