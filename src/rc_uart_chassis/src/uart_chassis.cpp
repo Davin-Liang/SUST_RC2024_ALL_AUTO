@@ -127,8 +127,9 @@ public:
             return false;
         }
         command = buf[3];
-        std::string str = command;
-        std::cout << str << std::endl;
+        // std::string str = command;
+        std::string myString(1, static_cast<char>(command)); 
+        std::cout << myString << std::endl;
     }
 
     /* 公共变量 */
