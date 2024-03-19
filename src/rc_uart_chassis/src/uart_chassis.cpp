@@ -134,6 +134,9 @@ public:
         if (buf[0] != header[0] && buf[1] != header[1])
             return false;
 
+        if (buf[6] != ender[0] && buf[7] != ender[1])
+            return false;
+
         dataLength = buf[2];
         checkSum = GetCrc8(buf, 3+dataLength);
 
