@@ -23,12 +23,12 @@ public:
         ender[1] = 0x0a;
 
         /* 从参数服务器中获取参数 */
-        this->declare_parameter<std::string>("dev", "");
+        this->declare_parameter<std::string>("dev", "ttyUSB0");
         this->declare_parameter<int>("baud", 115200);
         this->declare_parameter<int>("time_out", 1000);
         this->declare_parameter<int>("hz", 100);
 
-        this->get_parameter_or<std::string>("dev", dev, "");
+        this->get_parameter_or<std::string>("dev", dev, "ttyUSB0");
         this->get_parameter_or<int>("baud", baud, 115200);
         this->get_parameter_or<int>("time_out", time_out, 1000);
         this->get_parameter_or<int>("hz", hz, 100);
