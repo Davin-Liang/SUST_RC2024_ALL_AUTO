@@ -101,6 +101,9 @@ public:
      */
     bool AnalyUartReciveData( std_msgs::msg::String& serialData )
     {
+        std::string str = "正在处理数据";
+        std::cout << str << std::endl;
+        
         uint8_t buf[500]; 
 	    uint16_t dataLength = 0, i = 0, len;
         unsigned char checkSum;
@@ -117,6 +120,10 @@ public:
             buf[i] = serialData.data.at(i);
         }
 
+        /* 判断数据头是否正确 */
+        if (buf[0] != header[0] && buf[1] != header[1])
+            return 0;
+
         dataLength = buf[2];
         checkSum = GetCrc8(buf, 3+dataLength);
 
@@ -124,9 +131,13 @@ public:
         if ( checkSum != buf[3+dataLength] )                 //buf[10] 串口接收
         {
             // ROS_ERROR("Received data check sum error!");
+            std::string str = "处理数据发生错误";
+            std::cout << str << std::endl;
             return false;
         }
         command = buf[3];
+        std::string str = "正在打印数据：";
+        std::cout << str << std::endl;
         // std::string str = command;
         std::string myString(1, static_cast<char>(command)); 
         std::cout << myString << std::endl;
@@ -224,20 +235,23 @@ int main(int argc, char **argv)
 
     while (rclcpp::ok())
     {  
-		if (node->ros_ser.available())
+		if ( node->ros_ser.available() )
 		{
 			std_msgs::msg::String serial_data;
+
+            std::string str = "开始读数据";
+            std::cout << str << std::endl;
 			serial_data.data = node->ros_ser.read(node->ros_ser.available());
  
 			node->uart_recive_flag = node->AnalyUartReciveData(serial_data);
 			
-			if (node->uart_recive_flag)
+			if ( node->uart_recive_flag )
 			{
 				node->uart_recive_flag = 0;
 			}
 			else
 			{
-				std::string str = "error";
+				std::string str = "本次处理数据没有成功";
                 std::cout << str << std::endl;
 			}
 		}	 
