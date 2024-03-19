@@ -138,13 +138,13 @@ public:
         checkSum = GetCrc8(buf, 3+dataLength);
 
         /* 检查信息校验值 */
-        if ( checkSum != buf[3+dataLength] )                 //buf[10] 串口接收
-        {
-            // ROS_ERROR("Received data check sum error!");
-            std::string str = "处理数据发生错误";
-            std::cout << str << std::endl;
-            return false;
-        }
+        // if ( checkSum != buf[3+dataLength] )                 //buf[10] 串口接收
+        // {
+        //     // ROS_ERROR("Received data check sum error!");
+        //     std::string str = "处理数据发生错误";
+        //     std::cout << str << std::endl;
+        //     return false;
+        // }
         command = buf[3];
         str = "正在打印数据：";
         std::cout << str << std::endl;
