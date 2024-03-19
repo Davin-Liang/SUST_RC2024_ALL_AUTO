@@ -152,10 +152,18 @@ public:
         // }
         command = buf[3];
         str = "正在打印数据：";
-        std::cout << str << std::endl;
+	std::cout << static_cast<int>(buf[0]) << std::endl;
+        std::cout << static_cast<int>(buf[1]) << std::endl;
+	std::cout << static_cast<int>(buf[2]) << std::endl;
+	std::cout << static_cast<int>(buf[3]) << std::endl;
+	std::cout << static_cast<int>(buf[4]) << std::endl;
+	std::cout << static_cast<int>(buf[5]) << std::endl;
+	std::cout << static_cast<int>(buf[6]) << std::endl;
+	std::cout << static_cast<int>(buf[7]) << std::endl;
         // std::string str = command;
-        std::string myString(1, static_cast<char>(command)); 
-        std::cout << myString << std::endl;
+        //std::string myString(1, static_cast<char>(command)); 
+        //std::cout << myString << std::endl;
+	return true;
     }
 
     /* 公共变量 */
@@ -270,11 +278,11 @@ int main(int argc, char **argv)
                 std::cout << str << std::endl;
 			}
 		}	 
-		rclcpp::spin(node);	
+		//rclcpp::spin(node);	
         node->rate_->sleep();
     }
     /* 运行节点，并检测退出信号*/
-    // rclcpp::spin(node);
+    rclcpp::spin(node);
     
     rclcpp::shutdown();
     return 0;
