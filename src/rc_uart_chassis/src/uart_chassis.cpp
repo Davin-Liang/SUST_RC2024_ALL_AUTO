@@ -23,12 +23,12 @@ public:
         ender[1] = 0x0a;
 
         /* 从参数服务器中获取参数 */
-        this->declare_parameter<std::string>("dev", "ttyUSB0");
+        this->declare_parameter<std::string>("dev", "/dev/ttyUSB0");
         this->declare_parameter<int>("baud", 115200);
         this->declare_parameter<int>("time_out", 1000);
         this->declare_parameter<int>("hz", 100);
 
-        this->get_parameter_or<std::string>("dev", dev, "ttyUSB0");
+        this->get_parameter_or<std::string>("dev", dev, "/dev/ttyUSB0");
         this->get_parameter_or<int>("baud", baud, 115200);
         this->get_parameter_or<int>("time_out", time_out, 1000);
         this->get_parameter_or<int>("hz", hz, 100);
@@ -263,10 +263,10 @@ int main(int argc, char **argv)
                 std::cout << str << std::endl;
 			}
 		}	 
-		rclcpp::spin(node);	
+		//rclcpp::spin(node);	
     }
     /* 运行节点，并检测退出信号*/
-    // rclcpp::spin(node);
+    rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
 }
