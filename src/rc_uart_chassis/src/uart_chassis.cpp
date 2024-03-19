@@ -127,7 +127,8 @@ public:
             return false;
         }
         command = buf[3];
-        RCLCPP_INFO(this->get_logger(), " command: %u\n", command);
+        std::string str = command;
+        std::cout << str << std::endl;
     }
 
     /* 公共变量 */
@@ -173,11 +174,11 @@ private:
         buf[3] = result;
 
         /* 预留控制命令 */
-        buf[3+length-1] = ctrlflag;
+        buf[3+length-1] = ctrlflag; // 4
         /* 设置校验位 */
-        buf[3+length] = GetCrc8(buf, 3+length);
-        buf[3+length+1] = ender[0];
-        buf[3+length+2] = ender[1];
+        buf[3+length] = GetCrc8(buf, 3+length); // 5
+        buf[3+length+1] = ender[0]; // 6
+        buf[3+length+2] = ender[1]; //
 
         /* 通过串口下发数据 */
         ros_ser.write(buf, 8);
