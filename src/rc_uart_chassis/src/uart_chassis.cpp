@@ -122,7 +122,7 @@ public:
 
         /* 判断数据头是否正确 */
         if (buf[0] != header[0] && buf[1] != header[1])
-            return 0;
+            return false;
 
         dataLength = buf[2];
         checkSum = GetCrc8(buf, 3+dataLength);
@@ -150,9 +150,6 @@ public:
 private:
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr FrameSubscribe_; // 创建订阅者
     // rclcpp::TimerBase::SharedPtr timer;
-    /* 串口相关变量 */
-    
-    
     std::string dev; // 串口号
     int baud, time_out, hz; // 波特率，延时时间，发布频率
     bool init_OK;
