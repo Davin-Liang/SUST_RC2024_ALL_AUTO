@@ -32,6 +32,8 @@ public:
         this->get_parameter_or<int>("baud", baud, 115200);
         this->get_parameter_or<int>("time_out", time_out, 1000);
         this->get_parameter_or<int>("hz", hz, 100);
+
+        rate_ = std::make_shared<rclcpp::Rate>(hz);
     }
 
     /**
@@ -160,6 +162,7 @@ public:
     serial::Serial ros_ser;
     bool uart_recive_flag;
     std::string str = "";
+    std::shared_ptr<rclcpp::Rate> rate_;
 
 private:
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr FrameSubscribe_; // 创建订阅者
@@ -170,6 +173,7 @@ private:
     unsigned char header[2];
     unsigned char ender[2];
     unsigned char ctrlflag = 0x07;
+
 
 
     void FrameCallback( const std_msgs::msg::String::SharedPtr msg )
@@ -266,10 +270,12 @@ int main(int argc, char **argv)
                 std::cout << str << std::endl;
 			}
 		}	 
-		//rclcpp::spin(node);	
+		rclcpp::spin(node);	
+        node->rate_->sleep();
     }
     /* 运行节点，并检测退出信号*/
-    rclcpp::spin(node);
+    // rclcpp::spin(node);
+    
     rclcpp::shutdown();
     return 0;
 }
