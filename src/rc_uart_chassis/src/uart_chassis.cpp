@@ -2,6 +2,9 @@
 #include "std_msgs/msg/string.hpp"
 #include <serial/serial.h>
 
+#include <iostream>
+#include <string>
+
 class UartCommander : public rclcpp::Node
 {
 public:
@@ -23,12 +26,12 @@ public:
         this->declare_parameter<std::string>("dev", "");
         this->declare_parameter<int>("baud", 115200);
         this->declare_parameter<int>("time_out", 1000);
-        this->declare_parameter<int>("hz", "100");
+        this->declare_parameter<int>("hz", 100);
 
         this->get_parameter_or<std::string>("dev", dev, "");
-        this->get_parameter_or<int>("baud", baud, "115200");
-        this->get_parameter_or<int>("time_out", time_out, "1000");
-        this->get_parameter_or<int>("hz", hz, "100");
+        this->get_parameter_or<int>("baud", baud, 115200);
+        this->get_parameter_or<int>("time_out", time_out, 1000);
+        this->get_parameter_or<int>("hz", hz, 100);
     }
 
     /**
@@ -52,7 +55,9 @@ public:
         catch (serial::IOException& e)
         {
             // ROS_ERROR_STREAM("Unable to open port.");
-            RCLCPP_INFO(this->get_logger(), "Unable to open port.");
+            // RCLCPP_INFO(this->get_logger(), "Unable to open port.");
+            std::string str = "Unable to open port.";
+            std::cout << str << std::endl;
         }
 
         /* 检查串口是否开启 */
@@ -60,7 +65,9 @@ public:
         {
             ros_ser.flushInput(); //清空缓冲区数据
             // ROS_INFO_STREAM("Serial Port opened");
-            RCLCPP_INFO(this->get_logger(), "Serial Port opened.");
+            // RCLCPP_INFO(this->get_logger(), "Serial Port opened.");
+            std::string str = "Serial Port opened.";
+            std::cout << str << std::endl;
         }
         else
         {
@@ -92,7 +99,7 @@ public:
      * @param serialData --- 串口数据
      * @retval --- 
      */
-    Bool AnalyUartReciveData( std_msgs::String& serialData )
+    bool AnalyUartReciveData( std_msgs::String& serialData )
     {
         uint8_t buf[500]; 
 	    uint16_t dataLength = 0, i = 0, len;
@@ -132,14 +139,14 @@ private:
     std::string dev; // 串口号
     int baud, time_out, hz; // 波特率，延时时间，发布频率
     bool init_OK;
-    const unsigned char header[2];
-    const unsigned char ender[2];
+    unsigned char header[2];
+    unsigned char ender[2];
     unsigned char ctrlflag = 0x07;
 
 
     void FrameCallback( const std_msgs::msg::String::SharedPtr msg )
     {
-        SendCommand(msg.data);
+        SendCommand(msg->data);
 	}	
 
     void SendCommand ( std::string command )
@@ -204,24 +211,28 @@ int main(int argc, char **argv)
     rclcpp::init(argc, argv);
     /*创建对应节点的共享指针对象*/
     auto node = std::make_shared<UartCommander>("UartCommander");
-    node.OpenUart();
+    node->OpenUart();
+
+    std::string action = "开始接收串口数据";
+    std::cout << str << std::endl;
 
     while (rclcpp::ok())
     {  
-		if (ros_ser.available())
+		if (node->ros_ser.available())
 		{
-			std_msgs::String serial_data;
-			serial_data.data = ros_ser.read(ros_ser.available());
+			std_msgs::msg::String serial_data;
+			serial_data.data = node->ros_ser.read(node->ros_ser.available());
  
-			uart_recive_flag = node.AnalyUartReciveData(serial_data);
+			node->uart_recive_flag = node->AnalyUartReciveData(serial_data);
 			
-			if (uart_recive_flag)
+			if (node->uart_recive_flag)
 			{
-				uart_recive_flag = 0;
+				node->uart_recive_flag = 0;
 			}
 			else
 			{
-				RCLCPP_INFO(node.get_logger(), " errors ");
+				std::string str = "error";
+                std::cout << str << std::endl;
 			}
 		}	 
 		rclcpp::spin(node);	
