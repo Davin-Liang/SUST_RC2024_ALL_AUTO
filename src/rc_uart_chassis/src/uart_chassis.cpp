@@ -114,7 +114,7 @@ public:
         std::string str = "正在处理数据";
         std::cout << str << std::endl;
         
-        uint8_t buf[500]; 
+        unsigned char buf[500]; 
 	    uint16_t dataLength = 0, i = 0, len;
         unsigned char checkSum;
         unsigned char command;
