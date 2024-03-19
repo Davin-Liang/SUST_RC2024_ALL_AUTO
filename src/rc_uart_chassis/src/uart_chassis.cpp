@@ -120,6 +120,7 @@ public:
             return false;
         }
         command = buf[3];
+        RCLCPP_INFO(this->get_logger(), " command: %u\n", command);
     }
 
 private:
