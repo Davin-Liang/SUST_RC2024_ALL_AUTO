@@ -51,6 +51,8 @@ public:
             ros_ser.setTimeout(to);
             ros_ser.open();
             ros_ser.flushInput(); // 清空缓冲区数据
+            this->str = "初始化完毕。";
+            std::cout << this->str << std::endl;
         }
         catch (serial::IOException& e)
         {
@@ -71,7 +73,8 @@ public:
         }
         else
         {
-            //TODO
+            this->str = "未成功打开串口。";
+            std::cout << this->str << std::endl;
         }
 
         
@@ -146,6 +149,7 @@ public:
     /* 公共变量 */
     serial::Serial ros_ser;
     bool uart_recive_flag;
+    std::string str = "";
 
 private:
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr FrameSubscribe_; // 创建订阅者
