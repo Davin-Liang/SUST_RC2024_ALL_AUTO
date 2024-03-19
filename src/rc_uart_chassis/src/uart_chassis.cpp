@@ -51,14 +51,16 @@ public:
         }
         catch (serial::IOException& e)
         {
-            ROS_ERROR_STREAM("Unable to open port.");
+            // ROS_ERROR_STREAM("Unable to open port.");
+            RCLCPP_INFO(this->get_logger(), "Unable to open port.");
         }
 
         /* 检查串口是否开启 */
         if(ros_ser.isOpen())
         {
             ros_ser.flushInput(); //清空缓冲区数据
-            ROS_INFO_STREAM("Serial Port opened");
+            // ROS_INFO_STREAM("Serial Port opened");
+            RCLCPP_INFO(this->get_logger(), "Serial Port opened.");
         }
         else
         {
@@ -66,23 +68,23 @@ public:
         }
 
         
-        while ( !init_OK )	
-        {
-            if ( ros_ser.available() )
-            {
-                std_msgs::String serial_data;
-                string str_tem;
-                //获取串口数据
-                serial_data.data = ros_ser.read(ros_ser.available());
-                str_tem = serial_data.data;
+        // while ( !init_OK )	
+        // {
+        //     if ( ros_ser.available() )
+        //     {
+        //         std_msgs::String serial_data;
+        //         string str_tem;
+        //         //获取串口数据
+        //         serial_data.data = ros_ser.read(ros_ser.available());
+        //         str_tem = serial_data.data;
  
-                if ( str_tem.find("OK", 0) ) // 在字符串 str_tem 中查找第一次出现的子串 “OK”。参数 0 表示从字符串的起始位置开始搜索
-                    init_OK = true;
-                else
-                    ros_ser.flushInput(); //清空缓冲区数据
-            }
-            sleep(1);
-        }
+        //         if ( str_tem.find("OK", 0) ) // 在字符串 str_tem 中查找第一次出现的子串 “OK”。参数 0 表示从字符串的起始位置开始搜索
+        //             init_OK = true;
+        //         else
+        //             ros_ser.flushInput(); //清空缓冲区数据
+        //     }
+        //     sleep(1);
+        // }
     }
 
     /**
@@ -93,7 +95,7 @@ public:
     Bool AnalyUartReciveData( std_msgs::String& serialData )
     {
         uint8_t buf[500]; 
-	    uint16_t dataLength = 0,i=0,len;
+	    uint16_t dataLength = 0, i = 0, len;
         unsigned char checkSum;
         unsigned char command;
 	    uint8_t flag = 0;
@@ -102,7 +104,7 @@ public:
         // {
         //     return false;
         // }
-
+        dataLength = serial_data.data.size();
         for (i = 0; i < dataLength; i ++)
         {	
             buf[i] = serialData.data.at(i);
@@ -218,7 +220,7 @@ int main(int argc, char **argv)
 			}
 			else
 			{
-				RCUTILS_LOG_WARN("analysis data is error ..." ); 
+				RCLCPP_INFO(node.get_logger(), " errors ");
 			}
 		}	 
 		rclcpp::spin(node);	
