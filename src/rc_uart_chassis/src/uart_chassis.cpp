@@ -136,7 +136,7 @@ public:
             return false;
         }
         command = buf[3];
-        std::string str = "正在打印数据：";
+        str = "正在打印数据：";
         std::cout << str << std::endl;
         // std::string str = command;
         std::string myString(1, static_cast<char>(command)); 
