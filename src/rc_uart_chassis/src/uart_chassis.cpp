@@ -42,15 +42,21 @@ public:
     void OpenUart ( void )
     {
         /* 开启串口模块 */
+        int x1 = 0;
         try
         {
             ros_ser.setPort(dev);
+            x1 = 1;
             ros_ser.setBaudrate(baud);
-            
+            x1 = 2;
             serial::Timeout to = serial::Timeout::simpleTimeout(time_out);
+            x1 = 3;
             ros_ser.setTimeout(to);
+            x1 = 4;
             ros_ser.open();
+            x1 = 5;
             ros_ser.flushInput(); // 清空缓冲区数据
+            x1 = 6;
             this->str = "初始化完毕。";
             std::cout << this->str << std::endl;
         }
@@ -58,6 +64,7 @@ public:
         {
             // ROS_ERROR_STREAM("Unable to open port.");
             // RCLCPP_INFO(this->get_logger(), "Unable to open port.");
+            std::cout << "X: " << x1 << std::endl;
             std::string str = "Unable to open port.";
             std::cout << str << std::endl;
         }
