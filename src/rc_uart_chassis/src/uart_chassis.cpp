@@ -48,41 +48,30 @@ public:
         try
         {
             ros_ser.setPort(dev);
-            x1 = 1;
             ros_ser.setBaudrate(baud);
-            x1 = 2;
             serial::Timeout to = serial::Timeout::simpleTimeout(time_out);
-            x1 = 3;
             ros_ser.setTimeout(to);
-            x1 = 4;
             ros_ser.open();
-            x1 = 5;
             ros_ser.flushInput(); // 清空缓冲区数据
-            x1 = 6;
-            this->str = "初始化完毕。";
+            this->str = "初始化完毕.";
             std::cout << this->str << std::endl;
         }
         catch (serial::IOException& e)
         {
-            // ROS_ERROR_STREAM("Unable to open port.");
-            // RCLCPP_INFO(this->get_logger(), "Unable to open port.");
-            std::cout << "X: " << x1 << std::endl;
-            std::string str = "Unable to open port.";
-            std::cout << str << std::endl;
+            this->str = "Unable to open port.";
+            std::cout << this->str << std::endl;
         }
 
         /* 检查串口是否开启 */
         if(ros_ser.isOpen())
         {
             ros_ser.flushInput(); //清空缓冲区数据
-            // ROS_INFO_STREAM("Serial Port opened");
-            // RCLCPP_INFO(this->get_logger(), "Serial Port opened.");
-            std::string str = "Serial Port opened.";
-            std::cout << str << std::endl;
+            this->str = "Serial Port opened.";
+            std::cout << this->str << std::endl;
         }
         else
         {
-            this->str = "未成功打开串口。";
+            this->str = "未成功打开串口.";
             std::cout << this->str << std::endl;
         }
 
@@ -113,9 +102,6 @@ public:
      */
     bool AnalyUartReciveData( std_msgs::msg::String& serialData )
     {
-        std::string str = "正在处理数据";
-        std::cout << str << std::endl;
-        
         unsigned char buf[500]; 
 	    uint16_t dataLength = 0, i = 0, len;
         unsigned char checkSum;
@@ -152,18 +138,18 @@ public:
         // }
         command = buf[3];
         str = "正在打印数据：";
-	std::cout << static_cast<int>(buf[0]) << std::endl;
+        std::cout << static_cast<int>(buf[0]) << std::endl;
         std::cout << static_cast<int>(buf[1]) << std::endl;
-	std::cout << static_cast<int>(buf[2]) << std::endl;
-	std::cout << static_cast<int>(buf[3]) << std::endl;
-	std::cout << static_cast<int>(buf[4]) << std::endl;
-	std::cout << static_cast<int>(buf[5]) << std::endl;
-	std::cout << static_cast<int>(buf[6]) << std::endl;
-	std::cout << static_cast<int>(buf[7]) << std::endl;
+        std::cout << static_cast<int>(buf[2]) << std::endl;
+        std::cout << static_cast<int>(buf[3]) << std::endl;
+        std::cout << static_cast<int>(buf[4]) << std::endl;
+        std::cout << static_cast<int>(buf[5]) << std::endl;
+        std::cout << static_cast<int>(buf[6]) << std::endl;
+        std::cout << static_cast<int>(buf[7]) << std::endl;
         // std::string str = command;
         //std::string myString(1, static_cast<char>(command)); 
         //std::cout << myString << std::endl;
-	return true;
+	    return true;
     }
 
     /* 公共变量 */
@@ -253,8 +239,8 @@ int main(int argc, char **argv)
     auto node = std::make_shared<UartCommander>("UartCommander");
     node->OpenUart();
 
-    std::string action = "开始接收串口数据";
-    std::cout << action << std::endl;
+    node->str = "开始接收串口数据";
+    std::cout << node->str << std::endl;
 
     while (rclcpp::ok())
     {  
@@ -262,8 +248,8 @@ int main(int argc, char **argv)
 		{
 			std_msgs::msg::String serial_data;
 
-            std::string str = "开始读数据";
-            std::cout << str << std::endl;
+            node->str = "开始读数据";
+            std::cout << node->str << std::endl;
 			serial_data.data = node->ros_ser.read(node->ros_ser.available());
  
 			node->uart_recive_flag = node->AnalyUartReciveData(serial_data);
@@ -274,8 +260,8 @@ int main(int argc, char **argv)
 			}
 			else
 			{
-				std::string str = "本次处理数据没有成功";
-                std::cout << str << std::endl;
+				node->str = "本次没有接受到正确的数据";
+                std::cout << node->str << std::endl;
 			}
 		}	 
 		//rclcpp::spin(node);	
