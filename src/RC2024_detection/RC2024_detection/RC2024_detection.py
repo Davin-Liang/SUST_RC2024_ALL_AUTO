@@ -13,7 +13,7 @@ class VisionDetecter(Node):
         self.MainColor = MainColor
         self.ActionPoint = [400, 400]
         self.O_DistanceThreshold = 20
-        self.Mode = "c"
+        self.Mode = "a"
         self.PreResult = False
         self.Result = False
         self.OptimalFrame = ""
@@ -129,6 +129,8 @@ class VisionDetecter(Node):
                 if self.Calculate_O_Distance(Ball['CentralPoint']) < MinDistance:
                     MinIndex = Index
                     MinDistance = self.Calculate_O_Distance(Ball['CentralPoint'])
+        print(BallLists[MinIndex]['CentralPoint'][0] - self.ActionPoint[0])
+        print(BallLists[MinIndex]['CentralPoint'][1] - self.ActionPoint[1])
         self.DistanceXY.data[0] = BallLists[MinIndex]['CentralPoint'][0] - self.ActionPoint[0]
         self.DistanceXY.data[1] = BallLists[MinIndex]['CentralPoint'][1] - self.ActionPoint[1]
         self.DistanceXYPublisher_.publish(self.DistanceXY)
