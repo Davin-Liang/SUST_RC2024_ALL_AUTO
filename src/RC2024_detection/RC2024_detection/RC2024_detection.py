@@ -123,6 +123,7 @@ class VisionDetecter(Node):
         """ By this function, select the optimal ball and pulish distance of X Y. """
         # 得到每个目标球的中心坐标
         BestBallPoint = []
+        MinIndex = 0
         MinDistance = self.Calculate_O_Distance(BallLists[0]['CentralPoint'])
         for Index, Ball in enumerate(BallLists):
             if Ball['Color'] == self.MainColor:
@@ -145,7 +146,7 @@ class VisionDetecter(Node):
     
 def main(args=None):
     rclpy.init(args=args) # Initial rclpy
-    VisionNode = VisionDetecter("VisionDetecter", MainColor="red") 
+    VisionNode = VisionDetecter("VisionDetecter", MainColor="tv") 
     rclpy.spin(VisionNode) # keep the node ongoing, and detect the "ctrl c"
     rclpy.shutdown() #  rclpy
 
