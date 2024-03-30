@@ -2,8 +2,8 @@
 import rclpy
 from rclpy.node import Node
 from ai_msgs.msg import PerceptionTargets
-from std_msgs.msg import String, Bool
-from chassis_info_interfaces.msg import List, ChassisInfo
+from std_msgs.msg import String, Bool, Int16MultiArray
+from chassis_info_interfaces.msg import ChassisInfo
 import math
 
 class VisionDetecter(Node):
@@ -22,7 +22,7 @@ class VisionDetecter(Node):
         self.DropBallMsg = Bool()
         self.PickBallMsg = Bool()
         self.OptimalMsg = String()
-        self.DistanceXY = List()
+        self.DistanceXY = Int16MultiArray()
         self.Frames = ({'BallNum': 0, 'HighestBall': 'no'},
                         {'BallNum': 0, 'HighestBall': 'no'},
                         {'BallNum': 0, 'HighestBall': 'no'},
@@ -37,7 +37,7 @@ class VisionDetecter(Node):
         self.DropBallPublisher_ = self.create_publisher(Bool, "drop_ball", 10)
         self.PickBallPublisher_ = self.create_publisher(Bool, "pick_ball", 10)
         # TODO: define the artifical message that be named as "List". -> finish
-        self.DistanceXYPublisher_ = self.create_publisher(List, "distance_xy", 10)
+        self.DistanceXYPublisher_ = self.create_publisher(Int16MultiArray, "distance_xy", 10)
 
     def ChassisInfoCallback_(self, msg):
         self.TinyAdjustSign = msg.tiny_adjust
@@ -132,8 +132,10 @@ class VisionDetecter(Node):
                     MinDistance = self.Calculate_O_Distance(Ball['CentralPoint'])
         print(BallLists[MinIndex]['CentralPoint'][0] - self.ActionPoint[0])
         print(BallLists[MinIndex]['CentralPoint'][1] - self.ActionPoint[1])
-        self.DistanceXY.data[0] = BallLists[MinIndex]['CentralPoint'][0] - self.ActionPoint[0]
-        self.DistanceXY.data[1] = BallLists[MinIndex]['CentralPoint'][1] - self.ActionPoint[1]
+        data = []
+        data.append(BallLists[MinIndex]['CentralPoint'][0] - self.ActionPoint[0])
+        data.append(BallLists[MinIndex]['CentralPoint'][1] - self.ActionPoint[1])
+        self.DistanceXY.data = data
         self.DistanceXYPublisher_.publish(self.DistanceXY)
 
         if self.Calculate_O_Distance(BallLists[MinIndex]['CentralPoint']) < self.O_DistanceThreshold:
