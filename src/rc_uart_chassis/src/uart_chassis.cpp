@@ -12,7 +12,9 @@ public:
     UartCommander(std::string name) : Node(name)
     {
         RCLCPP_INFO(this->get_logger(), "%s节点已经启动.", name.c_str());
-	    FrameSubscribe_ = this->create_subscription<std_msgs::msg::String>("OptimalFrame", 10, std::bind(&UartCommander::FrameCallback, this, std::placeholders::_1));
+	    FrameSubscribe_ = this->create_subscription<std_msgs::msg::String>("optimal_frame", 10, std::bind(&UartCommander::FrameCallback, this, std::placeholders::_1));
+        DropBallSubscribe_ = this->create_subscription<std_msgs::msg::Bool>("drop_ball", 10, std::bind(&UartCommander::DropBallCallback, this, std::placeholders::_1));
+        PickBallSubscribe_ = this->create_subscription<std_msgs::msg::Bool>("pick_ball", 10, std::bind(&UartCommander::PickBallCallback, this, std::placeholders::_1));
         // timer = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&UartCommander::timer_callback, this));
         init_OK = false;
 
@@ -160,6 +162,9 @@ public:
 
 private:
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr FrameSubscribe_; // 创建订阅者
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr DropBallSubscribe_; // 创建订阅者
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr PickBallSubscribe_;
+
     // rclcpp::TimerBase::SharedPtr timer;
     std::string dev; // 串口号
     int baud, time_out, hz; // 波特率，延时时间，发布频率
@@ -168,7 +173,15 @@ private:
     unsigned char ender[2];
     unsigned char ctrlflag = 0x07;
 
+    void PickBallCallback( const std_msgs::msg::Bool::SharedPtr msg )
+    {
+        
+    }
 
+    void DropBallCallback( const std_msgs::msg::Bool::SharedPtr msg )
+    {
+        
+    }
 
     void FrameCallback( const std_msgs::msg::String::SharedPtr msg )
     {

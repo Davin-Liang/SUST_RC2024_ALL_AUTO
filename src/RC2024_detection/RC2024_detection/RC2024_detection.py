@@ -33,11 +33,11 @@ class VisionDetecter(Node):
         # TODO: import the artifical message type. -> finish
         self.ChassisInfoSubscribe_ = self.create_subscription(ChassisInfo, "chassis_info", self.ChassisInfoCallback_, 10)
 
-        self.FramePublisher_ = self.create_publisher(String, "OptimalFrame", 10)
-        self.DropBallPublisher_ = self.create_publisher(Bool, "DropBall", 10)
-        self.PickBallPublisher_ = self.create_publisher(Bool, "PickBall", 10)
+        self.FramePublisher_ = self.create_publisher(String, "optimal_frame", 10)
+        self.DropBallPublisher_ = self.create_publisher(Bool, "drop_ball", 10)
+        self.PickBallPublisher_ = self.create_publisher(Bool, "pick_ball", 10)
         # TODO: define the artifical message that be named as "List". -> finish
-        self.DistanceXYPublisher_ = self.create_publisher(List, "DistanceXY", 10)
+        self.DistanceXYPublisher_ = self.create_publisher(List, "distance_xy", 10)
 
     def ChassisInfoCallback_(self, msg):
         self.TinyAdjustSign = msg.tiny_adjust
@@ -71,7 +71,7 @@ class VisionDetecter(Node):
 
         if 0 != len(BallLists):
             if "a" == self.Mode: # 自由识别模式
-                self.SelectOptimalBall()    
+                self.SelectOptimalBall(BallLists)    
             elif "b" == self.Mode: # 局部识别模式
                 self.DetermineIfBallFrameIsOptimal()
         if 0 != len(BallLists) and 0 != len(FramesLists):
@@ -128,6 +128,7 @@ class VisionDetecter(Node):
             if Ball['Color'] == self.MainColor:
                 if self.Calculate_O_Distance(Ball['CentralPoint']) < MinDistance:
                     MinIndex = Index
+                    MinDistance = self.Calculate_O_Distance(Ball['CentralPoint'])
         self.DistanceXY.data[0] = BallLists[MinIndex]['CentralPoint'][0] - self.ActionPoint[0]
         self.DistanceXY.data[1] = BallLists[MinIndex]['CentralPoint'][1] - self.ActionPoint[1]
         self.DistanceXYPublisher_.publish(self.DistanceXY)
@@ -141,8 +142,8 @@ class VisionDetecter(Node):
         return math.sqrt((self.ActionPoint[0] - CentralPoint[0])**2 + (self.ActionPoint[1] - CentralPoint[1])**2)
     
 def main(args=None):
-    rclpy.init(args=args) # 初始化rclpy
-    VisionNode = VisionDetecter("VisionDetecter", MainColor="red")  # 新建一个节点
-    rclpy.spin(VisionNode) # 保持节点运行，检测是否收到退出指令（Ctrl+C）
-    rclpy.shutdown() # 关闭rclpy
+    rclpy.init(args=args) # Initial rclpy
+    VisionNode = VisionDetecter("VisionDetecter", MainColor="red") 
+    rclpy.spin(VisionNode) # keep the node ongoing, and detect the "ctrl c"
+    rclpy.shutdown() #  rclpy
 
