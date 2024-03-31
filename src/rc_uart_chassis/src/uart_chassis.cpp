@@ -205,7 +205,7 @@ private:
 
     void FrameCallback( const std_msgs::msg::String::SharedPtr msg )
     {
-        SendCommand(msg->data);
+        // SendCommand(msg->data);
 	}	
 
     /* 发送放球的指令 */
