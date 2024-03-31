@@ -255,7 +255,7 @@ private:
         }
     }
 
-    void SendCommand ( uint8_t * distance )
+    void SendCommand ( uint8_t distance[4] )
     {
         uint8_t buf[10] = {0};
         int j = 0;
