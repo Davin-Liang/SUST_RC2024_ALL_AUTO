@@ -141,6 +141,7 @@ class VisionDetecter(Node):
         if self.Calculate_O_Distance(BallLists[MinIndex]['CentralPoint']) < self.O_DistanceThreshold:
             self.PickBallMsg.data = True
             self.PickBallPublisher_.publish(self.PickBallMsg)
+            self.DetectSign = True
 
     def Calculate_O_Distance(self, CentralPoint):
         """ Calculate O distance. """

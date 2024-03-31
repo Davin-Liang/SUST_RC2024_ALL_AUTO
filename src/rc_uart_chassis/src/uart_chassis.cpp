@@ -1,9 +1,14 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "std_msgs/msg/bool.hpp"
+#include "std_msgs/msg/int16_multi_array.hpp"
 #include <serial/serial.h>
 
 #include <iostream>
 #include <string>
+
+#define BALL 1
+#define FRAME  2
 
 class UartCommander : public rclcpp::Node
 {
@@ -15,6 +20,7 @@ public:
 	    FrameSubscribe_ = this->create_subscription<std_msgs::msg::String>("optimal_frame", 10, std::bind(&UartCommander::FrameCallback, this, std::placeholders::_1));
         DropBallSubscribe_ = this->create_subscription<std_msgs::msg::Bool>("drop_ball", 10, std::bind(&UartCommander::DropBallCallback, this, std::placeholders::_1));
         PickBallSubscribe_ = this->create_subscription<std_msgs::msg::Bool>("pick_ball", 10, std::bind(&UartCommander::PickBallCallback, this, std::placeholders::_1));
+        DistanceXYSubscribe_ = this->create_subscription<std_msgs::msg::Int16MultiArray>("distance_xy", 10, std::bind(&UartCommander::DistanceXYCallback, this, std::placeholders::_1)); 
         // timer = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&UartCommander::timer_callback, this));
         init_OK = false;
 
@@ -164,6 +170,7 @@ private:
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr FrameSubscribe_; // 创建订阅者
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr DropBallSubscribe_; // 创建订阅者
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr PickBallSubscribe_;
+    rclcpp::Subscription<std_msgs::msg::Int16MultiArray>::SharedPtr DistanceXYSubscribe_;
 
     // rclcpp::TimerBase::SharedPtr timer;
     std::string dev; // 串口号
@@ -173,14 +180,27 @@ private:
     unsigned char ender[2];
     unsigned char ctrlflag = 0x07;
 
+    void DistanceXYCallback( const std_msgs::msg::Int16MultiArray::SharedPtr msg )
+    {
+        uint8_t data[4];
+        data[0] = msg->data[0] >> 8; // 高八位
+        data[1] = msg->data[0]; // 低八位
+        data[3] = msg->data[1] >> 8;
+        data[4] = msg->data[1];
+
+        SendCommand(data);
+    }
+
     void PickBallCallback( const std_msgs::msg::Bool::SharedPtr msg )
     {
-        
+        if ( msg->data )
+            SendCommand(0x01, BALL);
     }
 
     void DropBallCallback( const std_msgs::msg::Bool::SharedPtr msg )
     {
-        
+        if ( msg->data )
+            SendCommand(0x02, BALL);
     }
 
     void FrameCallback( const std_msgs::msg::String::SharedPtr msg )
@@ -188,34 +208,76 @@ private:
         SendCommand(msg->data);
 	}	
 
-    void SendCommand ( std::string command )
+    /* 发送放球的指令 */
+    void SendCommand ( uint8_t command, uint8_t situation )
     {
-        unsigned char buf[8] = {0};
-        int length = 2;
-
-        /* 转换命令数据的类型 */
-        const char * c_str = command.c_str();
-        unsigned char result = static_cast<unsigned char>(c_str[0]);
-
-        /* 设置消息头 */
-        for (int i = 0; i < 2; i ++)
+        if (BALL == situation)
         {
-            buf[i] = header[i];
+            uint8_t buf[8] = {0};
+            int length = 1, j = 0;
+            uint8_t check;
+            /* 设置消息头 */
+            buf[j++] = 0x5a; // 1
+            buf[j++] = 0xa8; // 2 
+            /* 设置命令 */
+            buf[j++] = length; // 3
+            buf[j++] = command; // 4
+            /* 设置校验位 */
+            for (int i = 0; i < 4; i ++)
+                check += buf[i];
+            buf[j++] = check;
+            /* 设置消息尾 */
+            buf[j++] = 0x67; // 6
+            buf[j++] = 0xb4; // 7
+            /* 通过串口下发数据 */
+            ros_ser.write(buf, 8);
         }
+        else if (FRAME == situation)
+        {
+            uint8_t buf[8] = {0};
+            int length = 1, j = 0;
+            uint8_t check;
+            /* 设置消息头 */
+            buf[j++] = 0x23; // 1
+            buf[j++] = 0x84; // 2 
+            /* 设置命令 */
+            buf[j++] = length; // 3
+            buf[j++] = command; // 4
+            /* 设置校验位 */
+            for (int i = 0; i < 4; i ++)
+                check += buf[i];
+            buf[j++] = check;
+            /* 设置消息尾 */
+            buf[j++] = 0xc7; // 6
+            buf[j++] = 0xc8; // 7
+            /* 通过串口下发数据 */
+            ros_ser.write(buf, 8);
+        }
+    }
 
+    void SendCommand ( uint8_t * distance )
+    {
+        uint8_t buf[10] = {0};
+        int j = 0;
+        int length = 4;
+        uint8_t check;
+        /* 设置消息头 */
+        buf[j++] = header[0]; // 1
+        buf[j++] = header[1]; // 2
         /* 设置命令 */
-        buf[2] = length;
-        buf[3] = result;
-
-        /* 预留控制命令 */
-        buf[3+length-1] = ctrlflag; // 4
+        buf[j++] = length;
+        buf[j++] = distance[0]; // 3
+        buf[j++] = distance[1]; // 4
+        buf[j++] = distance[2]; // 5
+        buf[j++] = distance[3]; // 6
         /* 设置校验位 */
-        buf[3+length] = GetCrc8(buf, 3+length); // 5
-        buf[3+length+1] = ender[0]; // 6
-        buf[3+length+2] = ender[1]; //
-
+        for (int i = 0; i < 4; i ++)
+            check += buf[i];
+        buf[j++] = check;  // 7
+        buf[j++] = ender[0]; // 8
+        buf[j++] = ender[1]; // 9
         /* 通过串口下发数据 */
-        ros_ser.write(buf, 8);
+        ros_ser.write(buf, 10);
     }
 
     /**
