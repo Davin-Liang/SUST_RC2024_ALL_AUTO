@@ -11,7 +11,7 @@ class VisionDetecter(Node):
         super().__init__(name)
         self.get_logger().info("Wassup, bro, I am %s, M3!" % name)
         self.MainColor = MainColor
-        self.ActionPoint = [400, 400]
+        self.ActionPoint = [400, 400] # TODO: confine the picking point of screen coordinate.
         self.O_DistanceThreshold = 20
         self.Mode = "a"
         self.PreResult = False
@@ -29,14 +29,11 @@ class VisionDetecter(Node):
                         {'BallNum': 0, 'HighestBall': 'no'},
                         {'BallNum': 0, 'HighestBall': 'no'},)
         self.VisionSubscribe_ = self.create_subscription(PerceptionTargets, "hobot_dnn_detection", self.VisionCallback, 10)
-        # TODO: create a artifical message that includes mode(String). tiny_adjust(Bool). result(Bool) -> finish
-        # TODO: import the artifical message type. -> finish
         self.ChassisInfoSubscribe_ = self.create_subscription(ChassisInfo, "chassis_info", self.ChassisInfoCallback_, 10)
 
         self.FramePublisher_ = self.create_publisher(String, "optimal_frame", 10)
         self.DropBallPublisher_ = self.create_publisher(Bool, "drop_ball", 10)
         self.PickBallPublisher_ = self.create_publisher(Bool, "pick_ball", 10)
-        # TODO: define the artifical message that be named as "List". -> finish
         self.DistanceXYPublisher_ = self.create_publisher(Int16MultiArray, "distance_xy", 10)
 
     def ChassisInfoCallback_(self, msg):
@@ -59,23 +56,23 @@ class VisionDetecter(Node):
         
         if 0 != len(msg.targets):
             for i in range(len(msg.targets)):
-                if msg.targets[i].type != "Frame": # 去除球筐的识别
+                if msg.targets[i].type != "Frame": # remove the detection of "Frame"
                     Ball['Color'] = msg.targets[i].type
                     Ball['CentralPoint'].append(msg.targets[0].rois[0].rect.x_offset + msg.targets[0].rois[0].rect.height/2)
                     Ball['CentralPoint'].append(msg.targets[0].rois[0].rect.y_offset + msg.targets[0].rois[0].rect.width/2)
-                else:
+                elif msg.targets[i].type == "Frame":
                     Frame.append(msg.targets[0].rois[0].rect.x_offset + msg.targets[0].rois[0].rect.height/2)
                     Frame.append(msg.targets[0].rois[0].rect.y_offset + msg.targets[0].rois[0].rect.width/2)
                 BallLists.append(Ball)
                 FramesLists.append(Frame)
 
         if 0 != len(BallLists):
-            if "a" == self.Mode: # 自由识别模式
+            if "a" == self.Mode: # free detecting mode
                 self.SelectOptimalBall(BallLists)    
-            elif "b" == self.Mode: # 局部识别模式
+            elif "b" == self.Mode: # local detecting mode
                 self.DetermineIfBallFrameIsOptimal()
         if 0 != len(BallLists) and 0 != len(FramesLists):
-            if "c" == self.Mode: # 全局识别模式
+            if "c" == self.Mode: # global detecting mode
                 self.SelectOptimalBallFrame(BallLists, FramesLists)
 
     def SelectOptimalBallFrame(self, BallLists, FramesLists, Threshold=5):
@@ -89,11 +86,11 @@ class VisionDetecter(Node):
                     self.Frames[Index]['BallNum'] += 1
                     self.Frames[Index]['HighestBall'] = Ball['Color']
         
-        # 最优放球框的选择
+        # the choice of optimal frame
 
         # --------------------
 
-        # 发布最优放球框
+        # publish the optimal frame
         self.OptimalMsg.data = self.OptimalFrame
         self.FramePublisher_.publish(self.OptimalMsg)
 

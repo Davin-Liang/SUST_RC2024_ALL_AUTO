@@ -211,10 +211,11 @@ private:
     /* 发送放球的指令 */
     void SendCommand ( uint8_t command, uint8_t situation )
     {
+        /* format: 数据头 - 数据包长度 - 重要信息 - 校验和 */
         if (BALL == situation)
         {
             uint8_t buf[8] = {0};
-            int length = 1, j = 0;
+            int length = 5, j = 0;
             uint8_t check;
             /* 设置消息头 */
             buf[j++] = 0x5a; // 1
@@ -226,16 +227,13 @@ private:
             for (int i = 0; i < 4; i ++)
                 check += buf[i];
             buf[j++] = check;
-            /* 设置消息尾 */
-            buf[j++] = 0x67; // 6
-            buf[j++] = 0xb4; // 7
             /* 通过串口下发数据 */
-            ros_ser.write(buf, 8);
+            ros_ser.write(buf, 5);
         }
         else if (FRAME == situation)
         {
             uint8_t buf[8] = {0};
-            int length = 1, j = 0;
+            int length = 5, j = 0;
             uint8_t check;
             /* 设置消息头 */
             buf[j++] = 0x23; // 1
@@ -247,11 +245,8 @@ private:
             for (int i = 0; i < 4; i ++)
                 check += buf[i];
             buf[j++] = check;
-            /* 设置消息尾 */
-            buf[j++] = 0xc7; // 6
-            buf[j++] = 0xc8; // 7
             /* 通过串口下发数据 */
-            ros_ser.write(buf, 8);
+            ros_ser.write(buf, 5);
         }
     }
 
@@ -259,7 +254,7 @@ private:
     {
         uint8_t buf[10] = {0};
         int j = 0;
-        int length = 4;
+        int length = 7;
         uint8_t check;
         /* 设置消息头 */
         buf[j++] = header[0]; // 1
@@ -274,10 +269,8 @@ private:
         for (int i = 0; i < 4; i ++)
             check += buf[i];
         buf[j++] = check;  // 7
-        buf[j++] = ender[0]; // 8
-        buf[j++] = ender[1]; // 9
         /* 通过串口下发数据 */
-        ros_ser.write(buf, 10);
+        ros_ser.write(buf, 7);
     }
 
     /**
