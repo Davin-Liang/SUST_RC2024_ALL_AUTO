@@ -2,7 +2,7 @@
 #include "std_msgs/msg/string.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "std_msgs/msg/int16_multi_array.hpp"
-#include "chassis_info_interfaces/msg/chassisinfo.hpp"
+#include "chassis_info_interfaces/msg/chassis_info.hpp"
 #include <serial/serial.h>
 
 #include <iostream>
