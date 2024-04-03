@@ -148,7 +148,7 @@ public:
             else if (buf[4] == 0x00)
                 message.result = false;
   
-            ChassisInfoPublisher_->pulish(message);
+            ChassisInfoPublisher_->publish(message);
         }
         else
             return false;
