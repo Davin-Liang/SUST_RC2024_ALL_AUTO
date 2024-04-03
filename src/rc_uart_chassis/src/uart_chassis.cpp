@@ -2,6 +2,7 @@
 #include "std_msgs/msg/string.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "std_msgs/msg/int16_multi_array.hpp"
+#include "chassis_info_interfaces/msg/chassisinfo.hpp"
 #include <serial/serial.h>
 
 #include <iostream>
@@ -21,7 +22,7 @@ public:
         DropBallSubscribe_ = this->create_subscription<std_msgs::msg::Bool>("drop_ball", 10, std::bind(&UartCommander::DropBallCallback, this, std::placeholders::_1));
         PickBallSubscribe_ = this->create_subscription<std_msgs::msg::Bool>("pick_ball", 10, std::bind(&UartCommander::PickBallCallback, this, std::placeholders::_1));
         DistanceXYSubscribe_ = this->create_subscription<std_msgs::msg::Int16MultiArray>("distance_xy", 10, std::bind(&UartCommander::DistanceXYCallback, this, std::placeholders::_1)); 
-        // timer = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&UartCommander::timer_callback, this));
+        ChassisInfoPublisher_ = this->create_publisher<chassis_info_interfaces::msg::ChassisInfo>("chassis_info", 10);
         init_OK = false;
 
         /* 初始化数据头和数据尾 */
@@ -116,10 +117,6 @@ public:
         unsigned char command;
 	    uint8_t flag = 0;
 
-        // if ( data_length < 1 || data_length > 500 )
-        // {
-        //     return false;
-        // }
         dataLength = serialData.data.size();
         for (i = 0; i < dataLength; i ++)
         {	
@@ -130,22 +127,31 @@ public:
         if (buf[0] != header[0] && buf[1] != header[1])
             return false;
 
-        if (buf[6] != ender[0] && buf[7] != ender[1])
-            return false;
-
         dataLength = buf[2];
-        checkSum = GetCrc8(buf, 3+dataLength);
+        for (int i = 0; i < dataLength - 1; i ++)
+            check += buf[i];
+        if (check == buf[dataLength-1]) // 检查校验和
+        {
+            /* data process */
+            chassis_info_interfaces::msg::ChassisInfo message;
+            if (buf[3] == 0x01)
+                message.mode = "a";
+            else if (buf[3] == 0x02)
+                message.mode = "b";
+            else if (buf[3] == 0x03)
+                message.mode = "c";
+            else if (buf[3] == 0x00)
+                message.mode = "n";
 
-        /* 检查信息校验值 */
-        // if ( checkSum != buf[3+dataLength] )                 //buf[10] 串口接收
-        // {
-        //     // ROS_ERROR("Received data check sum error!");
-        //     std::string str = "处理数据发生错误";
-        //     std::cout << str << std::endl;
-        //     return false;
-        // }
-        command = buf[3];
-        str = "正在打印数据：";
+            if (buf[4] == 0x01)
+                message.result = True;
+            else if (buf[4] == 0x00)
+                message.result = False;
+  
+            ChassisInfoPublisher_->pulish(message);
+        }
+        else
+            return false;
         std::cout << static_cast<int>(buf[0]) << std::endl;
         std::cout << static_cast<int>(buf[1]) << std::endl;
         std::cout << static_cast<int>(buf[2]) << std::endl;
@@ -154,9 +160,7 @@ public:
         std::cout << static_cast<int>(buf[5]) << std::endl;
         std::cout << static_cast<int>(buf[6]) << std::endl;
         std::cout << static_cast<int>(buf[7]) << std::endl;
-        // std::string str = command;
-        //std::string myString(1, static_cast<char>(command)); 
-        //std::cout << myString << std::endl;
+
 	    return true;
     }
 
@@ -167,10 +171,12 @@ public:
     std::shared_ptr<rclcpp::Rate> rate_;
 
 private:
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr FrameSubscribe_; // 创建订阅者
-    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr DropBallSubscribe_; // 创建订阅者
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr FrameSubscribe_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr DropBallSubscribe_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr PickBallSubscribe_;
     rclcpp::Subscription<std_msgs::msg::Int16MultiArray>::SharedPtr DistanceXYSubscribe_;
+
+    rclcpp::Publisher<chassis_info_interfaces::msg::ChassisInfo>::SharedPtr ChassisInfoPublisher_;
 
     // rclcpp::TimerBase::SharedPtr timer;
     std::string dev; // 串口号
