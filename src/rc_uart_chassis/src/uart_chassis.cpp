@@ -129,8 +129,8 @@ public:
 
         dataLength = buf[2];
         for (int i = 0; i < dataLength - 1; i ++)
-            check += buf[i];
-        if (check == buf[dataLength-1]) // 检查校验和
+            checkSum += buf[i];
+        if (checkSum == buf[dataLength-1]) // 检查校验和
         {
             /* data process */
             chassis_info_interfaces::msg::ChassisInfo message;
@@ -144,9 +144,9 @@ public:
                 message.mode = "n";
 
             if (buf[4] == 0x01)
-                message.result = True;
+                message.result = true;
             else if (buf[4] == 0x00)
-                message.result = False;
+                message.result = false;
   
             ChassisInfoPublisher_->pulish(message);
         }
