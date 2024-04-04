@@ -193,8 +193,8 @@ private:
         std::cout << str << std::endl;
         data[0] = msg->data[0] >> 8; // 高八位
         data[1] = msg->data[0]; // 低八位
-        data[3] = msg->data[1] >> 8;
-        data[4] = msg->data[1];
+        data[2] = msg->data[1] >> 8;
+        data[3] = msg->data[1];
 
         SendCommand(data);
     }
