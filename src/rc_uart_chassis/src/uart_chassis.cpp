@@ -342,7 +342,7 @@ int main(int argc, char **argv)
                 std::cout << node->str << std::endl;
 			}
 		}	 
-		//rclcpp::spin(node);	
+		rclcpp::spin(node);	
         node->rate_->sleep();
     }
     /* 运行节点，并检测退出信号*/
