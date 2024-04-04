@@ -276,7 +276,7 @@ private:
         /* 设置校验位 */
         for (int i = 0; i < 7; i ++)
             check += buf[i];
-        buf[j++] = check;  // 7
+        buf[j++] = 0x0d;  // 7
         /* 通过串口下发数据 */
         ros_ser.write(buf, 8);
         str = "已经发送数据";
