@@ -129,6 +129,7 @@ class VisionDetecter(Node):
                     MinDistance = self.Calculate_O_Distance(Ball['CentralPoint'])
         print(BallLists[MinIndex]['CentralPoint'][0] - self.ActionPoint[0])
         print(BallLists[MinIndex]['CentralPoint'][1] - self.ActionPoint[1])
+        print()
         data = []
         data.append(int(BallLists[MinIndex]['CentralPoint'][0] - self.ActionPoint[0]))
         data.append(int(BallLists[MinIndex]['CentralPoint'][1] - self.ActionPoint[1]))
