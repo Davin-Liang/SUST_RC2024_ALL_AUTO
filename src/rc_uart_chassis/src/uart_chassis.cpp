@@ -274,8 +274,8 @@ private:
         buf[j++] = distance[2]; // 5
         buf[j++] = distance[3]; // 6
         /* 设置校验位 */
-        for (int i = 0; i < 7; i ++)
-            check += buf[i];
+        // for (int i = 0; i < 7; i ++)
+        //     check += buf[i];
         buf[j++] = 0x0d;  // 7
         /* 通过串口下发数据 */
         ros_ser.write(buf, 8);
