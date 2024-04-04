@@ -189,6 +189,8 @@ private:
     void DistanceXYCallback( const std_msgs::msg::Int16MultiArray::SharedPtr msg )
     {
         uint8_t data[4];
+        str = "得到话题数据";
+        std::cout << str << std::endl;
         data[0] = msg->data[0] >> 8; // 高八位
         data[1] = msg->data[0]; // 低八位
         data[3] = msg->data[1] >> 8;
@@ -277,6 +279,8 @@ private:
         buf[j++] = check;  // 7
         /* 通过串口下发数据 */
         ros_ser.write(buf, 7);
+        str = "已经发送数据";
+        std::cout << str << std::endl;
     }
 
     /**
