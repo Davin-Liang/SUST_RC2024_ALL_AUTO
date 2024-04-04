@@ -11,7 +11,7 @@ class VisionDetecter(Node):
         super().__init__(name)
         self.get_logger().info("Wassup, bro, I am %s, M3!" % name)
         self.MainColor = MainColor
-        self.ActionPoint = [400, 400] # TODO: confine the picking point of screen coordinate.
+        self.ActionPoint = [507, 413] # TODO: confine the picking point of screen coordinate.
         self.O_DistanceThreshold = 20
         self.Mode = "a"
         self.PreResult = False
