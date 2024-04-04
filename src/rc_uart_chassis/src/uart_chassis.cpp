@@ -262,23 +262,23 @@ private:
     {
         uint8_t buf[10] = {0};
         int j = 0;
-        int length = 7;
+        int length = 8;
         uint8_t check;
         /* 设置消息头 */
-        buf[j++] = header[0]; // 1
-        buf[j++] = header[1]; // 2
+        buf[j++] = header[0]; // 0
+        buf[j++] = header[1]; // 1
         /* 设置命令 */
-        buf[j++] = length;
+        buf[j++] = length; // 2
         buf[j++] = distance[0]; // 3
         buf[j++] = distance[1]; // 4
         buf[j++] = distance[2]; // 5
         buf[j++] = distance[3]; // 6
         /* 设置校验位 */
-        for (int i = 0; i < 4; i ++)
+        for (int i = 0; i < 7; i ++)
             check += buf[i];
         buf[j++] = check;  // 7
         /* 通过串口下发数据 */
-        ros_ser.write(buf, 7);
+        ros_ser.write(buf, 8);
         str = "已经发送数据";
         std::cout << str << std::endl;
     }
