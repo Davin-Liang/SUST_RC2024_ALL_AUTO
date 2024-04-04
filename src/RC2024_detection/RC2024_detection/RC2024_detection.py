@@ -147,7 +147,7 @@ class VisionDetecter(Node):
     
 def main(args=None):
     rclpy.init(args=args) # Initial rclpy
-    VisionNode = VisionDetecter("VisionDetecter", MainColor="tv") 
+    VisionNode = VisionDetecter("VisionDetecter", MainColor="red") 
     rclpy.spin(VisionNode) # keep the node ongoing, and detect the "ctrl c"
     rclpy.shutdown() #  rclpy
 
