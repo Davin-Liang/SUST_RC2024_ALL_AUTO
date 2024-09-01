@@ -18,6 +18,10 @@ class BallPlacementNode(Node):
             Int32MultiArray,
             'best_and_secondary_basket',
             10)
+        
+        self.get_logger().info("请注意，我方为红色方!!!!!!")
+        print("===========================================================")
+        self.get_logger().info("等待获取篮筐信息......")
 
     def basket_status_callback(self, msg):
         basket_data = msg.data  # 读取数据
@@ -42,6 +46,9 @@ class BallPlacementNode(Node):
 
         # 发布最佳放球框和次要放球框
         self.publish_best_and_secondary_basket(best_basket, secondary_basket)
+        print("===========================================================")
+        self.get_logger().info("等待获取篮筐信息......")
+        
 
     def get_best_basket(self, baskets):
         # 获取每个框的球数
